@@ -14,7 +14,7 @@ def readme():
 
 
 setup(name='humaze',
-      version='0.1.0',
+      version='0.2.0',
       description='Hungarian Transformer-based A-maze implementation',
       long_description=readme(),
       url='https://github.com/DavidNemeskey/humaze',
@@ -50,10 +50,12 @@ setup(name='humaze',
       # Install the scripts
       scripts=[
           'scripts/counts_to_distractors.py',
+          'scripts/generate_distractors.py',
           'scripts/ngrams_to_count.py',
       ],
       install_requires=[
           'more_itertools',
+          'regex',
           # A progress bar
           'tqdm',
       ],

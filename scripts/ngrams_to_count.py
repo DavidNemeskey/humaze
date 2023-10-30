@@ -5,6 +5,7 @@ from argparse import ArgumentParser
 from collections import Counter
 import gzip
 import logging
+import os
 from pathlib import Path
 import re
 
@@ -30,6 +31,7 @@ def main():
         level=getattr(logging, args.log_level.upper()),
         format='%(asctime)s - %(process)s - %(levelname)s - %(message)s'
     )
+    os.nice(20)
 
     pos_pattern = re.compile('(?:.+)_[A-Z]+')
 

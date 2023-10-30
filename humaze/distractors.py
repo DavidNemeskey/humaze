@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+"""Distractor-related code."""
+
 import json
+import logging
 from math import floor, log2
 from pathlib import Path
 from random import shuffle
@@ -52,6 +55,13 @@ class Distractors:
         self.min_word_length = min_word_length
         self.max_word_length = max_word_length
 
+    def _min_freq_for_length(self, length: int) -> int:
+        """Returns the minimum frequency (bin) for length."""
+        length_str = f'{length}_'
+        return min(int(k.split('_')[1])
+                   for k in self.length_bin_to_distractors.keys()
+                   if k.startswith(length_str))
+
     def get_candidates(self, word, min_candidates: int = 100) -> list[str]:
         """
         Returns the distractor candidates for _word_. These are the words that
@@ -61,10 +71,16 @@ class Distractors:
         """
         candidates = []
         length = self._word_len(word)
-        freq_bin = self.words_to_bins[word]
+        try:
+            freq_bin = self.words_to_bins[word]
+        except KeyError:
+            freq_bin = self._min_freq_for_length(length)
+            logging.warning(f'Word {word} is not a known word, returning '
+                            f'the minimum frequency bin of {freq_bin}.')
         while len(candidates) < min_candidates and freq_bin <= self.max_bin:
             new_candidates = [
-                w for w in self.length_bin_to_distractors[f'{length}_{freq_bin}']
+                w for w in
+                self.length_bin_to_distractors.get(f'{length}_{freq_bin}', [])
                 if w != word
             ]
             shuffle(new_candidates)
