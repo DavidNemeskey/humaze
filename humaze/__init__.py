@@ -3,9 +3,13 @@
 
 from collections.abc import Generator
 import bz2
+from functools import partial
 import gzip
 import io
 from pathlib import Path
+import sys
+
+from tqdm import tqdm
 
 try:
     import idzip
@@ -46,9 +50,21 @@ def openall(
                     closefd, opener)
 
 
+otqdm = partial(tqdm, file=sys.stdout)
+
+
 def read_counts(counts_file) -> Generator[tuple[str, int]]:
     """Enumerates a word count file."""
     with openall(counts_file, 'rt') as inf:
         for line in inf:
             ngram, count = line.strip().split('\t')
             yield ngram, int(count)
+
+
+def append_to_name(path: Path, addendum: str) -> Path:
+    """
+    Appends _addendum_ to the name of the file, just before the suffixes.
+    """
+    suffixes = ''.join(path.suffixes)
+    stem = path.name[:-len(suffixes)]
+    return path.parent / (stem + addendum + suffixes)

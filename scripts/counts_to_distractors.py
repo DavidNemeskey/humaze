@@ -5,17 +5,22 @@ from argparse import ArgumentParser
 import logging
 from pathlib import Path
 
+import regex as re
+
 from humaze import read_counts
 from humaze.distractors import Distractors
 
 
 # Google n-grams: 23688414489 -> 34.46
-# Emlam: 36619096 -> 25.13
-# and/és: 33.36 / 23.11
-# Google WC above 2^13: 340194
-# Equivalent Emlam threshold: 35
-# Google WC above 2^25: 1203
-# Equivalent Emlam threshold: 30207 / 2^15 (-9 => 2^16)
+# Emlam:             36619096 -> 25.13
+# WC2:              796907873 -> 29.57
+# and/és: 33.36 / 23.11 / 27.34
+# Google WC above 2^13:       340194 (threshold: 8192)
+# Equivalent Emlam threshold:  35
+# Equivalent WC2 threshold:   657
+# Google WC above 2^25:       1203
+# Equivalent Emlam threshold:  30207 / 2^15 (-9 => 2^16)
+# Equivalent WC2 threshold:   672334  / 2^19 (-9 => 2^20)
 
 
 def parse_arguments():
@@ -55,12 +60,18 @@ def main():
         format='%(asctime)s - %(process)s - %(levelname)s - %(message)s'
     )
 
+    wordp = re.compile(r'([a-záéíóöőúüű]+?)(?:-e)?')
     distractors = Distractors(max_bin=args.max_bin,
                               min_word_length=args.min_word_length,
                               max_word_length=args.max_word_length)
     for word, count in read_counts(args.counts_file):
-        if count >= args.count_threshold:
-            distractors.add(word, count)
+        if not wordp.fullmatch(word):
+            continue
+        if not count >= args.count_threshold:
+            continue
+        if not (len(word) > 1 or word in {'a', 's', 'ő'}):
+            continue
+        distractors.add(word, count)
 
     distractors.save_to_file(args.output_file)
 
