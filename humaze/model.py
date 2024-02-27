@@ -60,7 +60,7 @@ class ProbabilityModel(ABC):
             return RandomProbabilityModel()
 
 
-class PretrainedProbabilityModel:
+class PretrainedProbabilityModel(ProbabilityModel):
     def __init__(self, model, tokenizer, batch_size: int = 1):
         self.model = model
         self.tokenizer = tokenizer
