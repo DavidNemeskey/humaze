@@ -14,7 +14,7 @@ def readme():
 
 
 setup(name='humaze',
-      version='0.2.0',
+      version='0.3.0',
       description='Hungarian Transformer-based A-maze implementation',
       long_description=readme(),
       url='https://github.com/DavidNemeskey/humaze',
